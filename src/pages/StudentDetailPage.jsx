@@ -8,6 +8,12 @@ import ErrorBanner from '../components/ErrorBanner';
 import SkeletonCard from '../components/SkeletonCard';
 import EmptyState from '../components/EmptyState';
 
+const ACADEMIC_YEARS = {
+  '68fc4c07-fee6-46a0-8128-f4c1b8dffafa': 'الصف الاول الثانوي',
+  '677fc9f4-7a36-4dbe-8b29-808b1f5f2dab': 'الصف الثاني الثانوي',
+  'c77a0cf6-cff9-46bb-8791-8247fa3c219f': 'الصف الثالث الثانوي'
+};
+
 const DetailRow = ({ label, value, isPhone = false, icon: Icon }) => {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center py-4 border-b border-border/40 last:border-0 group hover:bg-white/5 transition-colors px-3 -mx-3 rounded-xl">
@@ -133,7 +139,7 @@ export default function StudentDetailPage() {
           <DetailRow icon={MapPin} label="المركز" value={student.center_name} />
           <DetailRow icon={PhoneCall} label="هاتف ولي الأمر" value={student.parent_phone_number} isPhone />
           <DetailRow icon={Calendar} label="تاريخ التسجيل" value={formattedDate} />
-          <DetailRow icon={BookOpen} label="السنة الدراسية" value={student.current_year_id} />
+          <DetailRow icon={BookOpen} label="السنة الدراسية" value={ACADEMIC_YEARS[student.current_year_id] || student.current_year_id} />
         </div>
       </motion.div>
     </div>
