@@ -26,7 +26,7 @@ const StudentCard = React.memo(({ student, returnPath, index = 0 }) => {
           </div>
         </div>
         
-        <h3 className="text-xl md:text-2xl font-bold text-text-main mb-5 md:mb-6 leading-tight group-hover:text-primary transition-colors flex-grow">
+        <h3 className="text-xl md:text-2xl font-bold text-text-main mb-5 md:mb-6 leading-tight group-hover:text-primary transition-colors flex-grow line-clamp-2">
           {student.full_name}
         </h3>
         
