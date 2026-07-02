@@ -14,6 +14,17 @@ const ACADEMIC_YEARS = {
   'c77a0cf6-cff9-46bb-8791-8247fa3c219f': 'الصف الثالث الثانوي'
 };
 
+const getWhatsAppUrl = (phone) => {
+  if (!phone) return '#';
+  let cleaned = phone.toString().replace(/\D/g, '');
+  if (cleaned.startsWith('0')) {
+    cleaned = '20' + cleaned.substring(1);
+  } else if (!cleaned.startsWith('20')) {
+    cleaned = '20' + cleaned;
+  }
+  return `https://wa.me/${cleaned}`;
+};
+
 const DetailRow = ({ label, value, isPhone = false, icon: Icon }) => {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center py-4 border-b border-border/40 last:border-0 group hover:bg-white/5 transition-colors px-3 -mx-3 rounded-xl">
@@ -25,7 +36,9 @@ const DetailRow = ({ label, value, isPhone = false, icon: Icon }) => {
         {value === null || value === undefined || value === '' ? (
           <span className="text-text-muted/60 italic font-medium">غير متاح</span>
         ) : isPhone ? (
-          <a href={`tel:${value}`} dir="ltr" className="text-primary hover:text-primary-light transition-colors hover:underline inline-block">{value}</a>
+          <a href={getWhatsAppUrl(value)} target="_blank" rel="noopener noreferrer" dir="ltr" className="text-primary hover:text-green-500 transition-colors hover:underline inline-flex items-center gap-2">
+            {value}
+          </a>
         ) : (
           value
         )}

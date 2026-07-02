@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,6 +9,12 @@ import FilterBar from '../components/FilterBar';
 import SkeletonCard from '../components/SkeletonCard';
 import ErrorBanner from '../components/ErrorBanner';
 import egyptData from '../../egypt_full.json';
+
+const ACADEMIC_YEARS_LIST = [
+  { id: '68fc4c07-fee6-46a0-8128-f4c1b8dffafa', name: 'الصف الاول الثانوي' },
+  { id: '677fc9f4-7a36-4dbe-8b29-808b1f5f2dab', name: 'الصف الثاني الثانوي' },
+  { id: 'c77a0cf6-cff9-46bb-8791-8247fa3c219f', name: 'الصف الثالث الثانوي' }
+];
 
 const fetchStudents = async () => {
   const { data, error } = await supabase
@@ -36,31 +42,56 @@ export default function StudentListPage() {
   });
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const selectedGovernorate = searchParams.get('gov') || '';
-  const selectedCenter = searchParams.get('center') || '';
+  const appliedYear = searchParams.get('year') || '';
+  const appliedGovernorate = searchParams.get('gov') || '';
+  const appliedCenter = searchParams.get('center') || '';
+
+  const [localYear, setLocalYear] = useState(appliedYear);
+  const [localGov, setLocalGov] = useState(appliedGovernorate);
+  const [localCenter, setLocalCenter] = useState(appliedCenter);
+
+  useEffect(() => {
+    setLocalYear(appliedYear);
+    setLocalGov(appliedGovernorate);
+    setLocalCenter(appliedCenter);
+  }, [appliedYear, appliedGovernorate, appliedCenter]);
 
   const governorates = useMemo(() => {
     return egyptData.governorates.map(g => g.name_ar).sort();
   }, []);
 
   const centers = useMemo(() => {
-    if (!selectedGovernorate) return [];
-    const gov = egyptData.governorates.find(g => g.name_ar === selectedGovernorate);
+    if (!localGov) return [];
+    const gov = egyptData.governorates.find(g => g.name_ar === localGov);
     return gov ? gov.centers.map(c => c.name_ar).sort() : [];
-  }, [selectedGovernorate]);
+  }, [localGov]);
+
+  const handleYearChange = (year) => {
+    setLocalYear(year);
+    setLocalGov('');
+    setLocalCenter('');
+  };
 
   const handleGovernorateChange = (gov) => {
-    const params = new URLSearchParams(searchParams);
-    if (gov) params.set('gov', gov);
-    else params.delete('gov');
-    params.delete('center');
-    setSearchParams(params);
+    setLocalGov(gov);
+    setLocalCenter('');
   };
 
   const handleCenterChange = (center) => {
+    setLocalCenter(center);
+  };
+
+  const handleSearch = () => {
     const params = new URLSearchParams(searchParams);
-    if (center) params.set('center', center);
+    if (localYear) params.set('year', localYear);
+    else params.delete('year');
+    
+    if (localGov) params.set('gov', localGov);
+    else params.delete('gov');
+    
+    if (localCenter) params.set('center', localCenter);
     else params.delete('center');
+    
     setSearchParams(params);
   };
 
@@ -68,11 +99,12 @@ export default function StudentListPage() {
 
   const filteredStudents = useMemo(() => {
     return students.filter((student) => {
-      const matchGov = selectedGovernorate ? student.governorate_name === selectedGovernorate : true;
-      const matchCenter = selectedCenter ? student.center_name === selectedCenter : true;
-      return matchGov && matchCenter;
+      const matchYear = appliedYear ? student.current_year_id === appliedYear : true;
+      const matchGov = appliedGovernorate ? student.governorate_name === appliedGovernorate : true;
+      const matchCenter = appliedCenter ? student.center_name === appliedCenter : true;
+      return matchYear && matchGov && matchCenter;
     });
-  }, [students, selectedGovernorate, selectedCenter]);
+  }, [students, appliedYear, appliedGovernorate, appliedCenter]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
@@ -97,12 +129,16 @@ export default function StudentListPage() {
       </motion.header>
 
       <FilterBar
+        years={ACADEMIC_YEARS_LIST}
         governorates={governorates}
         centers={centers}
-        selectedGovernorate={selectedGovernorate}
-        selectedCenter={selectedCenter}
+        selectedYear={localYear}
+        selectedGovernorate={localGov}
+        selectedCenter={localCenter}
+        onYearChange={handleYearChange}
         onGovernorateChange={handleGovernorateChange}
         onCenterChange={handleCenterChange}
+        onSearch={handleSearch}
         onClearFilters={clearFilters}
       />
 

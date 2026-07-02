@@ -1,19 +1,43 @@
 import React from 'react';
-import { FilterX, Map, MapPin } from 'lucide-react';
+import { FilterX, Map, MapPin, Calendar, Search } from 'lucide-react';
 
 const FilterBar = ({ 
+  years,
   governorates, 
   centers, 
+  selectedYear,
   selectedGovernorate, 
   selectedCenter, 
+  onYearChange,
   onGovernorateChange, 
   onCenterChange, 
+  onSearch,
   onClearFilters 
 }) => {
-  const hasActiveFilters = selectedGovernorate || selectedCenter;
+  const hasActiveFilters = selectedYear || selectedGovernorate || selectedCenter;
 
   return (
     <div className="bg-surface/80 backdrop-blur-xl border border-border/80 p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-lg shadow-black/10 mb-6 md:mb-10 flex flex-col md:flex-row gap-4 md:gap-5 items-end relative z-10">
+      <div className="flex-1 w-full relative">
+        <label className="block text-sm md:text-base font-semibold text-text-main mb-2 md:mb-3 flex items-center gap-2">
+          <Calendar size={18} className="text-primary" /> السنة الدراسية
+        </label>
+        <div className="relative">
+          <select
+            value={selectedYear}
+            onChange={(e) => onYearChange(e.target.value)}
+            className="w-full appearance-none bg-background/50 border border-border/80 rounded-xl px-4 py-3 md:py-3.5 pr-12 text-text-main font-medium focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all cursor-pointer hover:bg-background/80 text-sm md:text-base"
+          >
+            <option value="">اختر السنة الدراسية</option>
+            {years?.map((year) => (
+              <option key={year.id} value={year.id}>{year.name}</option>
+            ))}
+          </select>
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+        </div>
+      </div>
       <div className="flex-1 w-full relative">
         <label className="block text-sm md:text-base font-semibold text-text-main mb-2 md:mb-3 flex items-center gap-2">
           <Map size={18} className="text-primary" /> المحافظة
@@ -22,9 +46,10 @@ const FilterBar = ({
           <select
             value={selectedGovernorate}
             onChange={(e) => onGovernorateChange(e.target.value)}
-            className="w-full appearance-none bg-background/50 border border-border/80 rounded-xl px-4 py-3 md:py-3.5 pr-12 text-text-main font-medium focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all cursor-pointer hover:bg-background/80 text-sm md:text-base"
+            disabled={!selectedYear}
+            className="w-full appearance-none bg-background/50 border border-border/80 rounded-xl px-4 py-3 md:py-3.5 pr-12 text-text-main font-medium focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer hover:bg-background/80 text-sm md:text-base"
           >
-            <option value="">كل المحافظات</option>
+            <option value="">اختر المحافظة</option>
             {governorates.map((gov) => (
               <option key={gov} value={gov}>{gov}</option>
             ))}
@@ -46,7 +71,7 @@ const FilterBar = ({
             disabled={!selectedGovernorate}
             className="w-full appearance-none bg-background/50 border border-border/80 rounded-xl px-4 py-3 md:py-3.5 pr-12 text-text-main font-medium focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer hover:bg-background/80 text-sm md:text-base"
           >
-            <option value="">كل المراكز</option>
+            <option value="">اختر المركز</option>
             {centers.map((center) => (
               <option key={center} value={center}>{center}</option>
             ))}
@@ -57,14 +82,23 @@ const FilterBar = ({
         </div>
       </div>
 
-      {hasActiveFilters && (
+      <div className="flex flex-col md:flex-row gap-2 md:gap-3 shrink-0">
         <button
-          onClick={onClearFilters}
-          className="w-full md:w-auto px-6 py-3.5 bg-danger/10 text-danger border border-danger/20 rounded-xl font-semibold hover:bg-danger hover:text-white transition-all flex items-center justify-center gap-2 text-sm md:text-base mt-2 md:mt-0 shrink-0"
+          onClick={onSearch}
+          className="w-full md:w-auto px-6 py-3.5 bg-primary text-white border border-primary/20 rounded-xl font-semibold hover:bg-primary-light transition-all flex items-center justify-center gap-2 text-sm md:text-base mt-2 md:mt-0"
         >
-          <FilterX size={18} /> مسح الفلتر
+          <Search size={18} /> بحث
         </button>
-      )}
+        {hasActiveFilters && (
+          <button
+            onClick={onClearFilters}
+            className="w-full md:w-auto px-4 py-3.5 bg-danger/10 text-danger border border-danger/20 rounded-xl font-semibold hover:bg-danger hover:text-white transition-all flex items-center justify-center gap-2 text-sm md:text-base mt-2 md:mt-0"
+            title="مسح الفلتر"
+          >
+            <FilterX size={18} /> 
+          </button>
+        )}
+      </div>
     </div>
   );
 };
